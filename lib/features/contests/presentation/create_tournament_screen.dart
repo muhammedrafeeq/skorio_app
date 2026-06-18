@@ -27,6 +27,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   String _selectedSport = 'football'; // football, cricket, basketball, tennis, badminton, custom
   String _tournamentType = 'teams'; // teams, individual, doubles
 
+  // Venues
+  final List<_Venue> _venues = [];
+  final TextEditingController _venueNameController = TextEditingController();
+  String _venueSurface = 'grass';
+
   // Step 2 - Format
   String _selectedFormat = 'league'; // league, knockout, league_knockout, groups_knockout, custom
 
@@ -72,6 +77,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     _locController.dispose();
     _prizesController.dispose();
     _teamNameController.dispose();
+    _venueNameController.dispose();
     super.dispose();
   }
 
@@ -324,8 +330,11 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         _buildLabel("Description"),
         _buildTextField(_descController, "e.g., Local tournament for sector 5 clubs.", maxLines: 2),
         const SizedBox(height: 16),
-        _buildLabel("Location / Venue"),
-        _buildTextField(_locController, "e.g., Sector 5 Ground, Mumbai"),
+        _buildLabel("City / Region"),
+        _buildTextField(_locController, "e.g., Mumbai, India"),
+        const SizedBox(height: 16),
+        _buildLabel("VENUES"),
+        _buildVenueManager(),
         const SizedBox(height: 16),
         _buildLabel("Sport Type"),
         Wrap(
@@ -480,6 +489,101 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         const SizedBox(height: 20),
         _buildLabel("Prizes Description"),
         _buildTextField(_prizesController, "e.g., Trophy + ₹10,000 Shop Voucher"),
+      ],
+    );
+  }
+
+  Widget _buildVenueManager() {
+    const surfaces = ['grass', 'turf', 'indoor', 'outdoor', 'clay', 'hard'];
+    const surfaceIcons = {
+      'grass': '🌿', 'turf': '🟩', 'indoor': '🏟️',
+      'outdoor': '☀️', 'clay': '🟤', 'hard': '⬜',
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Add venue row
+        Row(
+          children: [
+            Expanded(
+              child: _buildTextField(_venueNameController, "Venue name (e.g. Main Ground)", height: 42),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              height: 42,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.02),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _venueSurface,
+                  dropdownColor: const Color(0xFF131318),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  onChanged: (v) { if (v != null) setState(() => _venueSurface = v); },
+                  items: surfaces.map((s) => DropdownMenuItem(
+                    value: s,
+                    child: Text('${surfaceIcons[s]} ${s[0].toUpperCase()}${s.substring(1)}'),
+                  )).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.add_circle, color: SkorioColors.secondary, size: 28),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                final name = _venueNameController.text.trim();
+                if (name.isEmpty) return;
+                setState(() {
+                  _venues.add(_Venue(name: name, surface: _venueSurface));
+                  _venueNameController.clear();
+                });
+              },
+            ),
+          ],
+        ),
+        if (_venues.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          ..._venues.asMap().entries.map((e) {
+            final v = e.value;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.02),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
+              ),
+              child: Row(
+                children: [
+                  Text(surfaceIcons[v.surface] ?? '📍', style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(v.name, style: SkorioTextStyles.labelSm.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(v.surface[0].toUpperCase() + v.surface.substring(1),
+                            style: SkorioTextStyles.labelSm.copyWith(color: Colors.white38, fontSize: 10)),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 16),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () => setState(() => _venues.removeAt(e.key)),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
       ],
     );
   }
@@ -874,7 +978,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         _buildSummaryRow("Draw Method", drawNames[_drawMethod] ?? _drawMethod),
         _buildSummaryRow("Rules", "Win: $_winPts PTS · Draw: $_drawPts PTS · Loss: $_lossPts PTS"),
         _buildSummaryRow("Total Teams", "${_teams.length} Teams"),
-        if (_locController.text.isNotEmpty) _buildSummaryRow("Venue", _locController.text),
+        if (_locController.text.isNotEmpty) _buildSummaryRow("City", _locController.text),
+        if (_venues.isNotEmpty) _buildSummaryRow("Venues", _venues.map((v) => v.name).join(', ')),
         if (_prizesController.text.isNotEmpty) _buildSummaryRow("Prizes", _prizesController.text),
         const SizedBox(height: 8),
         _buildSectionHeader("SERIES LENGTH", "Matches per round."),
@@ -1135,6 +1240,14 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       ),
     );
   }
+}
+
+// ─── Venue Model ──────────────────────────────────────────────────────────────
+
+class _Venue {
+  final String name;
+  final String surface;
+  _Venue({required this.name, required this.surface});
 }
 
 // ─── Draw Animation Widget ─────────────────────────────────────────────────────
