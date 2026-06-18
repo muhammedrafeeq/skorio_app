@@ -36,6 +36,17 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   int _lossPts = 0;
   final TextEditingController _prizesController = TextEditingController();
 
+  // Series length per round (number of matches per matchup)
+  final Map<String, int> _legsPerRound = {
+    'final': 1,
+    'third_place': 1,
+    'semi': 2,
+    'quarter': 1,
+    'r16': 1,
+    'r32': 1,
+    'r64': 1,
+  };
+
   // Step 4 - Teams
   final List<TournamentTeam> _teams = [
     const TournamentTeam(id: 't_mock_1', name: 'Red Panthers', logoUrl: '🐆', primaryColor: '0xFFEF4444', secondaryColor: '0xFF131318', players: []),
@@ -411,6 +422,16 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   // ─── Step 3: Scoring Rules ─────────────────────────────────────────────────
 
   Widget _buildStep3Rules() {
+    final rounds = [
+      ('final',       'Final'),
+      ('third_place', '3rd Place Match'),
+      ('semi',        'Semifinals'),
+      ('quarter',     'Quarter Finals'),
+      ('r16',         'Round of 16'),
+      ('r32',         'Round of 32'),
+      ('r64',         'Round of 64'),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -424,10 +445,81 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
             _buildPointsConfigTile("LOSS POINTS", _lossPts, (val) => setState(() => _lossPts = val)),
           ],
         ),
+        const SizedBox(height: 24),
+        _buildSectionHeader("SERIES LENGTH", "Matches per matchup in each round."),
+        const SizedBox(height: 12),
+        ...rounds.map((r) {
+          final key = r.$1;
+          final label = r.$2;
+          final legs = _legsPerRound[key]!;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.02),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style: SkorioTextStyles.labelSm.copyWith(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                _buildLegsToggle(key, legs),
+              ],
+            ),
+          );
+        }),
         const SizedBox(height: 20),
         _buildLabel("Prizes Description"),
         _buildTextField(_prizesController, "e.g., Trophy + ₹10,000 Shop Voucher"),
       ],
+    );
+  }
+
+  Widget _buildLegsToggle(String roundKey, int current) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [1, 2, 3].map((n) {
+        final isActive = current == n;
+        return GestureDetector(
+          onTap: () => setState(() => _legsPerRound[roundKey] = n),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 32,
+            height: 28,
+            margin: const EdgeInsets.only(left: 4),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? SkorioColors.secondary.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isActive
+                    ? SkorioColors.secondary.withValues(alpha: 0.5)
+                    : Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                '$n',
+                style: TextStyle(
+                  color: isActive ? SkorioColors.secondary : Colors.white38,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -784,6 +876,46 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         _buildSummaryRow("Total Teams", "${_teams.length} Teams"),
         if (_locController.text.isNotEmpty) _buildSummaryRow("Venue", _locController.text),
         if (_prizesController.text.isNotEmpty) _buildSummaryRow("Prizes", _prizesController.text),
+        const SizedBox(height: 8),
+        _buildSectionHeader("SERIES LENGTH", "Matches per round."),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ('final',       'Final'),
+            ('third_place', '3rd Place'),
+            ('semi',        'Semis'),
+            ('quarter',     'QF'),
+            ('r16',         'R16'),
+            ('r32',         'R32'),
+            ('r64',         'R64'),
+          ].map((r) {
+            final legs = _legsPerRound[r.$1]!;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+              ),
+              child: Column(
+                children: [
+                  Text(r.$2, style: SkorioTextStyles.labelSm.copyWith(color: Colors.white38, fontSize: 9)),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$legs ${legs == 1 ? 'leg' : 'legs'}',
+                    style: SkorioTextStyles.labelSm.copyWith(
+                      color: SkorioColors.secondary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }
