@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -58,7 +58,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
               ),
               title: Text(
                 "Schedule Match",
-                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 16),
+                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 18),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -74,7 +74,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                           setDialogState(() => selectedHome = val);
                         }
                       },
-                      itemBuilder: (t) => Row(children: [Text(t.logoUrl), const SizedBox(width: 8), Text(t.name, style: const TextStyle(color: Colors.white, fontSize: 13))]),
+                      itemBuilder: (t) => Row(children: [Text(t.logoUrl), const SizedBox(width: 8), Text(t.name, style: const TextStyle(color: Colors.white, fontSize: 15))]),
                     ),
                     const SizedBox(height: 12),
                     _buildLabel("Away Team"),
@@ -86,7 +86,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                           setDialogState(() => selectedAway = val);
                         }
                       },
-                      itemBuilder: (t) => Row(children: [Text(t.logoUrl), const SizedBox(width: 8), Text(t.name, style: const TextStyle(color: Colors.white, fontSize: 13))]),
+                      itemBuilder: (t) => Row(children: [Text(t.logoUrl), const SizedBox(width: 8), Text(t.name, style: const TextStyle(color: Colors.white, fontSize: 15))]),
                     ),
                     const SizedBox(height: 12),
                     _buildLabel("Venue"),
@@ -117,7 +117,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                           children: [
                             Text(
                               "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-                              style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const Icon(Icons.calendar_month, color: SkorioColors.secondary, size: 18),
                           ],
@@ -227,10 +227,10 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
+        style: const TextStyle(color: Colors.white, fontSize: 15),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
+          hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
@@ -300,13 +300,13 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                                   color: SkorioColors.secondary,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 1.2,
-                                  fontSize: 14,
+                                  fontSize: 16,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 "Run local leagues, cups, standings, and match scores.",
-                                style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 11),
+                                style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 13),
                               ),
                             ],
                           ),
@@ -406,7 +406,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
               style: SkorioTextStyles.labelSm.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w900,
-                fontSize: 9.5,
+                fontSize: 11,
                 letterSpacing: 0.5,
               ),
               textAlign: TextAlign.center,
@@ -484,13 +484,13 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                       style: SkorioTextStyles.labelMd.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       "${tour.sport.toUpperCase()} · ${tour.teams.length} Teams · ${tour.location}",
-                      style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 10),
+                      style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 12),
                     ),
                   ],
                 ),
@@ -506,7 +506,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                   ),
                   child: Text(
                     "LIVE",
-                    style: SkorioTextStyles.labelSm.copyWith(color: Colors.redAccent, fontSize: 8, fontWeight: FontWeight.bold),
+                    style: SkorioTextStyles.labelSm.copyWith(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 )
               else if (scheduledMatches > 0)
@@ -519,7 +519,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                   ),
                   child: Text(
                     "$scheduledMatches FIX",
-                    style: SkorioTextStyles.labelSm.copyWith(color: SkorioColors.secondary, fontSize: 8, fontWeight: FontWeight.bold),
+                    style: SkorioTextStyles.labelSm.copyWith(color: SkorioColors.secondary, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 )
               else
@@ -531,7 +531,7 @@ class _TournamentDashboardScreenState extends ConsumerState<TournamentDashboardS
                   ),
                   child: Text(
                     "DONE",
-                    style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 8, fontWeight: FontWeight.bold),
+                    style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
               const SizedBox(width: 8),

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -247,7 +247,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
             style: SkorioTextStyles.labelMd.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w900,
-              fontSize: 14,
+              fontSize: 16,
               letterSpacing: 1.2,
             ),
           ),
@@ -468,7 +468,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     style: SkorioTextStyles.labelSm.copyWith(
                       color: Colors.white70,
                       fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -513,7 +513,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                 style: TextStyle(
                   color: isActive ? SkorioColors.secondary : Colors.white38,
                   fontWeight: FontWeight.bold,
-                  fontSize: 11,
+                  fontSize: 13,
                 ),
               ),
             ),
@@ -687,7 +687,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         ),
         child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 16)),
+            Text(emoji, style: const TextStyle(fontSize: 18)),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -700,7 +700,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                         style: SkorioTextStyles.labelSm.copyWith(
                           color: isSelected ? Colors.white : Colors.white70,
                           fontWeight: FontWeight.bold,
-                          fontSize: 11,
+                          fontSize: 13,
                         ),
                       ),
                       if (isRecommended) ...[
@@ -729,7 +729,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     desc,
                     style: SkorioTextStyles.labelSm.copyWith(
                       color: Colors.white30,
-                      fontSize: 10,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -768,7 +768,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                       style: SkorioTextStyles.labelSm.copyWith(
                         color: SkorioColors.secondary,
                         fontWeight: FontWeight.w900,
-                        fontSize: 10,
+                        fontSize: 12,
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -800,20 +800,20 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                             '${idx + 1}',
                             style: SkorioTextStyles.labelSm.copyWith(
                               color: SkorioColors.secondary,
-                              fontSize: 9,
+                              fontSize: 11,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
                         ),
                         const SizedBox(width: 10),
-                        Text(team.logoUrl, style: const TextStyle(fontSize: 16)),
+                        Text(team.logoUrl, style: const TextStyle(fontSize: 18)),
                         const SizedBox(width: 8),
                         Text(
                           team.name,
                           style: SkorioTextStyles.labelSm.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 11,
+                            fontSize: 13,
                           ),
                         ),
                       ],
@@ -908,7 +908,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     style: SkorioTextStyles.labelSm.copyWith(
                       color: SkorioColors.secondary,
                       fontWeight: FontWeight.bold,
-                      fontSize: 11,
+                      fontSize: 13,
                     ),
                   ),
                 ],
@@ -933,7 +933,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         const SizedBox(height: 2),
         Text(
           subtitle,
-          style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 11),
+          style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 13),
         ),
       ],
     );
@@ -960,10 +960,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       child: TextField(
         controller: controller,
         maxLines: maxLines,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
+        style: const TextStyle(color: Colors.white, fontSize: 15),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 12),
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 14),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
@@ -989,7 +989,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
           style: SkorioTextStyles.labelSm.copyWith(
             color: isSelected ? SkorioColors.secondary : Colors.white54,
             fontWeight: FontWeight.bold,
-            fontSize: 10,
+            fontSize: 12,
           ),
         ),
       ),
@@ -1019,7 +1019,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                 style: SkorioTextStyles.labelSm.copyWith(
                   color: isSelected ? Colors.white : Colors.white54,
                   fontWeight: FontWeight.bold,
-                  fontSize: 11,
+                  fontSize: 13,
                 ),
               ),
             ),
@@ -1043,7 +1043,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         children: [
           Text(
             label,
-            style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 8.5, letterSpacing: 0.5),
+            style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 10, letterSpacing: 0.5),
           ),
           const SizedBox(height: 8),
           Row(
@@ -1057,7 +1057,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               const SizedBox(width: 8),
               Text(
                 "$value",
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(width: 8),
               IconButton(
@@ -1216,7 +1216,7 @@ class _DrawAnimationWidgetState extends State<_DrawAnimationWidget> with TickerP
           "DRAW POOL",
           style: SkorioTextStyles.labelSm.copyWith(
             color: Colors.white30,
-            fontSize: 9,
+            fontSize: 11,
             letterSpacing: 0.8,
             fontWeight: FontWeight.w900,
           ),
@@ -1243,7 +1243,7 @@ class _DrawAnimationWidgetState extends State<_DrawAnimationWidget> with TickerP
           "DRAW ORDER",
           style: SkorioTextStyles.labelSm.copyWith(
             color: Colors.white30,
-            fontSize: 9,
+            fontSize: 11,
             letterSpacing: 0.8,
             fontWeight: FontWeight.w900,
           ),
@@ -1274,7 +1274,7 @@ class _DrawAnimationWidgetState extends State<_DrawAnimationWidget> with TickerP
                         '${i + 1}',
                         style: SkorioTextStyles.labelSm.copyWith(
                           color: Colors.white12,
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -1325,14 +1325,14 @@ class _DrawAnimationWidgetState extends State<_DrawAnimationWidget> with TickerP
               '$showSlotNum',
               style: SkorioTextStyles.labelSm.copyWith(
                 color: SkorioColors.secondary,
-                fontSize: 8,
+                fontSize: 10,
                 fontWeight: FontWeight.w900,
               ),
             ),
           Text(
             team.logoUrl,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               color: isPlaced ? Colors.white.withValues(alpha: 0.3) : null,
             ),
           ),
@@ -1341,7 +1341,7 @@ class _DrawAnimationWidgetState extends State<_DrawAnimationWidget> with TickerP
             team.name,
             style: SkorioTextStyles.labelSm.copyWith(
               color: isPlaced ? Colors.white24 : Colors.white70,
-              fontSize: 9,
+              fontSize: 11,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -142,10 +142,10 @@ class _TournamentsListScreenState extends ConsumerState<TournamentsListScreen> {
             ),
             child: TextField(
               controller: _searchController,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: const TextStyle(color: Colors.white, fontSize: 15),
               decoration: InputDecoration(
                 hintText: 'Search tournaments by name or city...',
-                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 12),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.15), fontSize: 14),
                 prefixIcon: const Icon(Icons.search, color: Colors.white24, size: 18),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -211,7 +211,7 @@ class _TournamentsListScreenState extends ConsumerState<TournamentsListScreen> {
           style: SkorioTextStyles.labelSm.copyWith(
             color: isSelected ? SkorioColors.secondary : Colors.white54,
             fontWeight: FontWeight.bold,
-            fontSize: 9,
+            fontSize: 11,
           ),
         ),
       ),
@@ -281,7 +281,7 @@ class _TournamentsListScreenState extends ConsumerState<TournamentsListScreen> {
                       style: SkorioTextStyles.labelSm.copyWith(
                         color: statusColor,
                         fontWeight: FontWeight.w900,
-                        fontSize: 8,
+                        fontSize: 10,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -315,7 +315,7 @@ class _TournamentsListScreenState extends ConsumerState<TournamentsListScreen> {
                           style: SkorioTextStyles.labelMd.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 16,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -323,7 +323,7 @@ class _TournamentsListScreenState extends ConsumerState<TournamentsListScreen> {
                         const SizedBox(height: 2),
                         Text(
                           "${tour.sport.toUpperCase()} · ${tour.teams.length} Teams · ${tour.location}",
-                          style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 10),
+                          style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 12),
                         ),
                       ],
                     ),
@@ -335,7 +335,7 @@ class _TournamentsListScreenState extends ConsumerState<TournamentsListScreen> {
                 const SizedBox(height: 12),
                 Text(
                   tour.description,
-                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white54, fontSize: 11, height: 1.3),
+                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white54, fontSize: 13, height: 1.3),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -68,7 +68,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
           ),
           title: Text(
             "Enter Result",
-            style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 16),
+            style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 18),
           ),
           content: SingleChildScrollView(
             child: Column(
@@ -83,7 +83,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         children: [
                           Text(homeTeam.logoUrl, style: const TextStyle(fontSize: 24)),
                           const SizedBox(height: 4),
-                          Text(homeTeam.name, style: const TextStyle(color: Colors.white, fontSize: 12), textAlign: TextAlign.center),
+                          Text(homeTeam.name, style: const TextStyle(color: Colors.white, fontSize: 14), textAlign: TextAlign.center),
                           const SizedBox(height: 8),
                           _buildNumberField(homeController),
                         ],
@@ -98,7 +98,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         children: [
                           Text(awayTeam.logoUrl, style: const TextStyle(fontSize: 24)),
                           const SizedBox(height: 4),
-                          Text(awayTeam.name, style: const TextStyle(color: Colors.white, fontSize: 12), textAlign: TextAlign.center),
+                          Text(awayTeam.name, style: const TextStyle(color: Colors.white, fontSize: 14), textAlign: TextAlign.center),
                           const SizedBox(height: 8),
                           _buildNumberField(awayController),
                         ],
@@ -183,7 +183,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
               ),
               title: Text(
                 "Add Fixture",
-                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 16),
+                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 18),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -197,8 +197,8 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         value: homeTeamId,
                         isExpanded: true,
                         dropdownColor: const Color(0xFF131318),
-                        hint: const Text("Select home team", style: TextStyle(color: Colors.white38, fontSize: 13)),
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        hint: const Text("Select home team", style: TextStyle(color: Colors.white38, fontSize: 15)),
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
                         underline: Container(height: 1, color: Colors.white12),
                         onChanged: (v) => setDialogState(() => homeTeamId = v),
                         items: tournament.teams.map((team) => DropdownMenuItem<String?>(
@@ -215,8 +215,8 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         value: awayTeamId,
                         isExpanded: true,
                         dropdownColor: const Color(0xFF131318),
-                        hint: const Text("Select away team", style: TextStyle(color: Colors.white38, fontSize: 13)),
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        hint: const Text("Select away team", style: TextStyle(color: Colors.white38, fontSize: 15)),
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
                         underline: Container(height: 1, color: Colors.white12),
                         onChanged: (v) => setDialogState(() => awayTeamId = v),
                         items: tournament.teams.map((team) => DropdownMenuItem<String?>(
@@ -229,10 +229,10 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                     _buildLabel("Venue"),
                     TextField(
                       controller: venueCtrl,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
                       decoration: InputDecoration(
                         hintText: "e.g. Main Ground - Pitch A",
-                        hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                        hintStyle: const TextStyle(color: Colors.white38, fontSize: 15),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: Colors.white12),
@@ -284,7 +284,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                             const SizedBox(width: 8),
                             Text(
                               "${scheduledDate.day}/${scheduledDate.month}/${scheduledDate.year}  ${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}",
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              style: const TextStyle(color: Colors.white, fontSize: 15),
                             ),
                           ],
                         ),
@@ -298,7 +298,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         value: phase,
                         isExpanded: true,
                         dropdownColor: const Color(0xFF131318),
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
                         underline: Container(height: 1, color: Colors.white12),
                         onChanged: (v) => setDialogState(() => phase = v ?? ''),
                         items: const [
@@ -361,7 +361,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
         controller: controller,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         decoration: const InputDecoration(border: InputBorder.none),
       ),
     );
@@ -376,10 +376,10 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+        style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white24, fontSize: 11),
+          hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ),
@@ -390,7 +390,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Text(text, style: SkorioTextStyles.labelSm.copyWith(color: Colors.white54, fontSize: 10)),
+      child: Text(text, style: SkorioTextStyles.labelSm.copyWith(color: Colors.white54, fontSize: 12)),
     );
   }
 
@@ -494,13 +494,13 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                   style: SkorioTextStyles.labelMd.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
-                    fontSize: 14,
+                    fontSize: 16,
                     letterSpacing: 1.0,
                   ),
                 ),
                 Text(
                   "${tournament.sport.toUpperCase()} · ${tournament.location}",
-                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 10),
+                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 12),
                 ),
               ],
             ),
@@ -531,7 +531,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
         indicatorColor: SkorioColors.secondary,
         labelColor: SkorioColors.secondary,
         unselectedLabelColor: Colors.white30,
-        labelStyle: SkorioTextStyles.labelSm.copyWith(fontWeight: FontWeight.bold, fontSize: 11),
+        labelStyle: SkorioTextStyles.labelSm.copyWith(fontWeight: FontWeight.bold, fontSize: 13),
         indicatorSize: TabBarIndicatorSize.tab,
         isScrollable: hasBracket,
         tabs: [
@@ -567,7 +567,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
                     "GROUP ${entry.key}",
-                    style: SkorioTextStyles.labelMd.copyWith(color: SkorioColors.secondary, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.2),
+                    style: SkorioTextStyles.labelMd.copyWith(color: SkorioColors.secondary, fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 1.2),
                   ),
                 ),
                 _buildStandingsTable(entry.value),
@@ -599,7 +599,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
               const SizedBox(width: 8),
               Text(
                 "POINTS TABLE",
-                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
           ),
@@ -609,7 +609,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
             children: [
               Expanded(
                 flex: 5,
-                child: Text("#   TEAM", style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold)),
+                child: Text("#   TEAM", style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 12, fontWeight: FontWeight.bold)),
               ),
               _buildTableCellHeader("P", 1),
               _buildTableCellHeader("W", 1),
@@ -645,11 +645,11 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                               style: TextStyle(
                                 color: idx < 3 ? SkorioColors.secondary : Colors.white24,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontSize: 14,
                               ),
                             ),
                           ),
-                          Text(rec.team.logoUrl, style: const TextStyle(fontSize: 16)),
+                          Text(rec.team.logoUrl, style: const TextStyle(fontSize: 18)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -671,7 +671,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                       "${rec.points}",
                       1.5,
                       align: Alignment.centerRight,
-                      style: const TextStyle(color: SkorioColors.secondary, fontWeight: FontWeight.w900, fontSize: 13),
+                      style: const TextStyle(color: SkorioColors.secondary, fontWeight: FontWeight.w900, fontSize: 15),
                     ),
                   ],
                 ),
@@ -690,7 +690,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
         alignment: align,
         child: Text(
           text,
-          style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 9.5, fontWeight: FontWeight.bold),
+          style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 11, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -703,7 +703,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
         alignment: align,
         child: Text(
           text,
-          style: style ?? SkorioTextStyles.labelSm.copyWith(color: Colors.white70, fontSize: 11.5, fontFamily: 'monospace'),
+          style: style ?? SkorioTextStyles.labelSm.copyWith(color: Colors.white70, fontSize: 13, fontFamily: 'monospace'),
         ),
       ),
     );
@@ -776,7 +776,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         style: TextStyle(
                           color: match.status == 'completed' ? SkorioColors.secondary : Colors.white30,
                           fontWeight: FontWeight.w900,
-                          fontSize: 16,
+                          fontSize: 18,
                         ),
                       ),
                     ),
@@ -813,7 +813,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         Expanded(
                           child: Text(
                             match.scorers.join(', '),
-                            style: SkorioTextStyles.labelSm.copyWith(color: Colors.white54, fontSize: 10),
+                            style: SkorioTextStyles.labelSm.copyWith(color: Colors.white54, fontSize: 12),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -839,7 +839,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                         style: SkorioTextStyles.labelSm.copyWith(
                           color: SkorioColors.secondary,
                           fontWeight: FontWeight.bold,
-                          fontSize: 9,
+                          fontSize: 11,
                         ),
                       ),
                     ),
@@ -922,14 +922,14 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                 const SizedBox(height: 6),
                 Text(
                   team.name,
-                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   "${team.players.length} registered squad",
-                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 10),
+                  style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24, fontSize: 12),
                 ),
               ],
             ),
@@ -958,7 +958,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                   const SizedBox(width: 12),
                   Text(
                     "${team.name} Squad Roster",
-                    style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 16),
+                    style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 18),
                   ),
                 ],
               ),
@@ -986,7 +986,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                                   backgroundColor: Colors.white10,
                                   child: Text(
                                     "${player.jerseyNumber}",
-                                    style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -1007,7 +1007,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                                 ),
                                 Text(
                                   "${player.goals} Goals",
-                                  style: TextStyle(color: SkorioColors.secondary, fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: TextStyle(color: SkorioColors.secondary, fontSize: 13, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -1074,7 +1074,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
         children: [
           Text(
             title,
-            style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12),
+            style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
           ),
           const SizedBox(height: 12),
           top3.isEmpty
@@ -1114,7 +1114,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                           ),
                           Text(
                             metricExtractor(player),
-                            style: const TextStyle(color: SkorioColors.secondary, fontSize: 11, fontWeight: FontWeight.w900),
+                            style: const TextStyle(color: SkorioColors.secondary, fontSize: 13, fontWeight: FontWeight.w900),
                           ),
                         ],
                       ),
@@ -1145,7 +1145,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
             const SizedBox(height: 6),
             Text(
               "Add matches with phase r16/qf/sf/final",
-              style: SkorioTextStyles.labelSm.copyWith(color: Colors.white12, fontSize: 10),
+              style: SkorioTextStyles.labelSm.copyWith(color: Colors.white12, fontSize: 12),
             ),
           ],
         ),
@@ -1183,7 +1183,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                       style: SkorioTextStyles.labelSm.copyWith(
                         color: color,
                         fontWeight: FontWeight.w900,
-                        fontSize: 10,
+                        fontSize: 12,
                         letterSpacing: 1.4,
                       ),
                     ),
@@ -1225,7 +1225,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                                     textAlign: TextAlign.center,
                                     style: SkorioTextStyles.labelSm.copyWith(
                                       color: color,
-                                      fontSize: 8,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 1,
                                     ),
@@ -1258,7 +1258,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
               style: SkorioTextStyles.labelSm.copyWith(
                 color: isWinner ? Colors.white : Colors.white54,
                 fontWeight: isWinner ? FontWeight.w900 : FontWeight.w600,
-                fontSize: 11,
+                fontSize: 13,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -1267,7 +1267,7 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
             '$score',
             style: TextStyle(
               color: isWinner ? accentColor : Colors.white30,
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: FontWeight.w900,
             ),
           ),
