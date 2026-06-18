@@ -11,6 +11,7 @@ import '../../../core/widgets/animations.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../providers/auth_provider.dart';
 import '../providers/achievements_provider.dart';
+import '../../../core/providers/app_mode_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -108,6 +109,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authState = ref.watch(authProvider);
     final user = authState.value;
     final achievementsState = ref.watch(achievementsProvider);
+    final isTournament = ref.watch(appModeProvider).mode == AppMode.tournament;
 
     if (user == null) {
       return const Scaffold(
@@ -116,6 +118,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: CircularProgressIndicator(color: SkorioColors.primary),
         ),
       );
+    }
+
+    if (isTournament) {
+      return _buildTournamentProfile(context, user);
     }
 
     final xpInCurrentLevel = user.xp % 100;
@@ -718,6 +724,164 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  Widget _buildTournamentProfile(BuildContext context, dynamic user) {
+    final initials = () {
+      final parts = (user.name as String).trim().split(RegExp(r'\s+'));
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      final n = user.name as String;
+      return n.substring(0, n.length > 2 ? 2 : n.length).toUpperCase();
+    }();
+
+    final settingsItems = [
+      _SettingsItem(Icons.language_outlined, 'Change Language', 'English', () {}),
+      _SettingsItem(Icons.privacy_tip_outlined, 'Privacy Policy', null, () {}),
+      _SettingsItem(Icons.help_outline, 'Help & Support', null, () {}),
+      _SettingsItem(Icons.info_outline, 'About Skorio', null, () {}),
+    ];
+
+    return Scaffold(
+      backgroundColor: SkorioColors.baseBg,
+      body: Stack(
+        children: [
+          const PitchBackground(child: SizedBox.expand()),
+          Positioned(
+            top: -60, right: -60,
+            child: Container(
+              width: 260, height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: SkorioColors.secondary.withValues(alpha: 0.05),
+              ),
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: Container(color: SkorioColors.secondary.withValues(alpha: 0.05)),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 16),
+                  // Avatar
+                  Container(
+                    width: 88, height: 88,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF10B981), Color(0xFF047857)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(color: SkorioColors.secondary.withValues(alpha: 0.4), width: 2),
+                      boxShadow: [BoxShadow(color: SkorioColors.secondary.withValues(alpha: 0.2), blurRadius: 20)],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900)),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    user.name.toUpperCase(),
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user.email ?? 'Tournament Organizer',
+                    style: SkorioTextStyles.labelSm.copyWith(color: Colors.white38, fontSize: 12),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: SkorioColors.secondary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: SkorioColors.secondary.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      '🏟️ TOURNAMENT MODE',
+                      style: SkorioTextStyles.labelSm.copyWith(color: SkorioColors.secondary, fontWeight: FontWeight.w900, fontSize: 10),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Settings section
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('SETTINGS', style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                  ),
+                  const SizedBox(height: 10),
+                  GlassCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        ...settingsItems.asMap().entries.map((e) {
+                          final item = e.value;
+                          final isLast = e.key == settingsItems.length - 1;
+                          return Column(
+                            children: [
+                              _buildSettingsRow(item.icon, item.label, item.value, item.onTap, SkorioColors.secondary),
+                              if (!isLast) Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Danger zone
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('ACCOUNT', style: SkorioTextStyles.labelSm.copyWith(color: Colors.white30, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                  ),
+                  const SizedBox(height: 10),
+                  GlassCard(
+                    padding: EdgeInsets.zero,
+                    child: _buildSettingsRow(Icons.logout, 'Log Out', null, () async {
+                      await ref.read(authProvider.notifier).logout();
+                    }, Colors.redAccent),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsRow(IconData icon, String label, String? value, VoidCallback onTap, Color iconColor) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 34, height: 34,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: iconColor, size: 18),
+            ),
+            const SizedBox(width: 14),
+            Expanded(child: Text(label, style: SkorioTextStyles.labelSm.copyWith(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13))),
+            if (value != null) ...[
+              Text(value, style: SkorioTextStyles.labelSm.copyWith(color: Colors.white38, fontSize: 11)),
+              const SizedBox(width: 6),
+            ],
+            const Icon(Icons.chevron_right, color: Colors.white24, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildQuickStat(IconData icon, String value, String label) {
     return Row(
       children: [
@@ -926,4 +1090,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       return 'Recent';
     }
   }
+}
+
+class _SettingsItem {
+  final IconData icon;
+  final String label;
+  final String? value;
+  final VoidCallback onTap;
+  const _SettingsItem(this.icon, this.label, this.value, this.onTap);
 }

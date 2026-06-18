@@ -31,73 +31,70 @@ class TopBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget _buildModeToggle(BuildContext context, WidgetRef ref) {
     final modeState = ref.watch(appModeProvider);
     final isFan = modeState.mode == AppMode.fan;
-    
-    return Container(
-      height: 32,
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B1B20),
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildToggleOption(
-            label: 'Fan',
-            isActive: isFan,
-            activeColor: SkorioColors.primary,
-            onTap: () {
-              ref.read(appModeProvider.notifier).setMode(AppMode.fan);
-              if (modeState.activeFanTab == 'games') {
-                context.go('/games');
-              } else {
-                context.go('/');
-              }
-            },
+
+    return GestureDetector(
+      onTap: () {
+        if (isFan) {
+          ref.read(appModeProvider.notifier).setMode(AppMode.tournament);
+          context.go('/tournaments/dashboard');
+        } else {
+          ref.read(appModeProvider.notifier).setMode(AppMode.fan);
+          context.go('/');
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFF16161C),
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(
+            color: isFan
+                ? SkorioColors.primary.withValues(alpha: 0.25)
+                : SkorioColors.secondary.withValues(alpha: 0.25),
+            width: 1,
           ),
-          _buildToggleOption(
-            label: 'Tournament',
-            isActive: !isFan,
-            activeColor: SkorioColors.secondary,
-            onTap: () {
-              ref.read(appModeProvider.notifier).setMode(AppMode.tournament);
-              if (modeState.activeTournamentTab == 'tournaments') {
-                context.go('/tournaments');
-              } else {
-                context.go('/tournaments/dashboard');
-              }
-            },
-          ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: isFan
+                  ? SkorioColors.primary.withValues(alpha: 0.08)
+                  : SkorioColors.secondary.withValues(alpha: 0.08),
+              blurRadius: 8,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildTogglePill('Fan', isFan, SkorioColors.primary),
+            const SizedBox(width: 2),
+            _buildTogglePill('Tournament', !isFan, SkorioColors.secondary),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildToggleOption({
-    required String label,
-    required bool isActive,
-    required Color activeColor,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isActive ? activeColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.black : Colors.white38,
-            fontSize: 9.5,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
-          ),
+  Widget _buildTogglePill(String label, bool isActive, Color activeColor) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isActive ? activeColor : Colors.transparent,
+        borderRadius: BorderRadius.circular(100),
+        boxShadow: isActive
+            ? [BoxShadow(color: activeColor.withValues(alpha: 0.3), blurRadius: 6, spreadRadius: 0)]
+            : [],
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: isActive ? Colors.black : Colors.white30,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0.3,
         ),
       ),
     );
@@ -156,16 +153,16 @@ class TopBar extends ConsumerWidget implements PreferredSizeWidget {
                             TextSpan(
                               text: 'SKO',
                               style: SkorioTextStyles.labelMd.copyWith(
-                                fontSize: 16,
+                                fontSize: isFan ? 16 : 20,
                                 fontWeight: FontWeight.w900,
                                 color: activeColor,
                                 letterSpacing: -0.5,
                               ),
                             ),
-                            const TextSpan(
+                            TextSpan(
                               text: 'RIO',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: isFan ? 16 : 20,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 letterSpacing: -0.5,
@@ -183,7 +180,7 @@ class TopBar extends ConsumerWidget implements PreferredSizeWidget {
               _buildModeToggle(context, ref),
 
               // Right Actions
-              Row(
+              isFan ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (user != null && screenWidth > 360) ...[
@@ -263,7 +260,7 @@ class TopBar extends ConsumerWidget implements PreferredSizeWidget {
                     constraints: const BoxConstraints(),
                   ),
                 ],
-              ),
+              ) : const SizedBox(),
             ],
           ),
         ),

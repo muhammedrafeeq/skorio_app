@@ -19,8 +19,8 @@ class MainShell extends ConsumerWidget {
       return 0;
     } else {
       if (loc.startsWith('/tournaments/dashboard')) return 0;
-      if (loc.startsWith('/tournaments/standings')) return 2;
-      if (loc.startsWith('/tournaments')) return 1;
+      if (loc.startsWith('/tournaments/teams')) return 2;
+      if (loc.startsWith('/tournaments') && !loc.startsWith('/tournaments/dashboard') && !loc.startsWith('/tournaments/teams')) return 1;
       if (loc.startsWith('/profile')) return 3;
       return 0;
     }
@@ -62,7 +62,7 @@ class _BottomNav extends ConsumerWidget {
     final tournamentItems = [
       _TabItem(Icons.dashboard_outlined, Icons.dashboard, 'Dashboard', () => context.go('/tournaments/dashboard')),
       _TabItem(Icons.emoji_events_outlined, Icons.emoji_events, 'Tournaments', () => context.go('/tournaments')),
-      _TabItem(Icons.table_chart_outlined, Icons.table_chart, 'Standings', () => context.go('/tournaments/standings')),
+      _TabItem(Icons.groups_outlined, Icons.groups, 'Teams', () => context.go('/tournaments/teams')),
       _TabItem(Icons.person_outline, Icons.person, 'Profile', () => context.go('/profile')),
     ];
 

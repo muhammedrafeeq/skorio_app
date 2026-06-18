@@ -84,6 +84,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/tournaments/dashboard', pageBuilder: (ctx, s) => _slidePage(s, const TournamentDashboardScreen())),
           GoRoute(path: '/tournaments',           pageBuilder: (ctx, s) => _slidePage(s, const TournamentsListScreen())),
           GoRoute(path: '/tournaments/standings', pageBuilder: (ctx, s) => _slidePage(s, const TournamentsListScreen())),
+          GoRoute(path: '/tournaments/teams',    pageBuilder: (ctx, s) => _slidePage(s, const TournamentsListScreen())),
         ],
       ),
 
