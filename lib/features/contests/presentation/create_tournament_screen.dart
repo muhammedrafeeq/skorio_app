@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,24 +18,25 @@ class CreateTournamentScreen extends ConsumerStatefulWidget {
 
 class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen> {
   int _currentStep = 1;
-  final int _totalSteps = 5;
+  final int _totalSteps = 6;
 
-  // Step 1 Controllers
+  // Step 1
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _locController = TextEditingController();
-  String _selectedSport = 'football'; // 'football', 'cricket', 'custom'
+  String _selectedSport = 'football'; // football, cricket, basketball, tennis, badminton, custom
+  String _tournamentType = 'teams'; // teams, individual, doubles
 
-  // Step 2 Format
-  String _selectedFormat = 'league'; // 'league', 'knockout'
+  // Step 2 - Format
+  String _selectedFormat = 'league'; // league, knockout, league_knockout, groups_knockout, custom
 
-  // Step 3 Rules
+  // Step 3 - Rules
   int _winPts = 3;
   int _drawPts = 1;
   int _lossPts = 0;
   final TextEditingController _prizesController = TextEditingController();
 
-  // Step 4 Teams List (Pre-loaded with 4 mock teams to make demo incredibly easy)
+  // Step 4 - Teams
   final List<TournamentTeam> _teams = [
     const TournamentTeam(id: 't_mock_1', name: 'Red Panthers', logoUrl: '🐆', primaryColor: '0xFFEF4444', secondaryColor: '0xFF131318', players: []),
     const TournamentTeam(id: 't_mock_2', name: 'Blue Falcons', logoUrl: '🦅', primaryColor: '0xFF3B82F6', secondaryColor: '0xFF131318', players: []),
@@ -44,7 +46,13 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
 
   final TextEditingController _teamNameController = TextEditingController();
   String _teamLogoEmoji = '⚽';
-  Color _teamPrimaryColor = SkorioColors.secondary;
+  final Color _teamPrimaryColor = SkorioColors.secondary;
+
+  // Step 5 - Draw
+  String _drawMethod = 'random'; // random, seeded, random_seeded, manual
+  bool _isDrawing = false;
+  bool _drawCompleted = false;
+  List<TournamentTeam> _drawnOrder = [];
 
   @override
   void dispose() {
@@ -75,6 +83,15 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       );
       return;
     }
+    if (_currentStep == 5 && !_drawCompleted && _drawMethod != 'manual') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please complete the draw first"),
+          backgroundColor: SkorioColors.errorContainer,
+        ),
+      );
+      return;
+    }
 
     setState(() {
       _currentStep++;
@@ -91,10 +108,9 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     final name = _teamNameController.text.trim();
     if (name.isEmpty) return;
 
-    // Convert color to hex string
-    final hexColor = '0xFF${_teamPrimaryColor.value.toRadixString(16).substring(2).toUpperCase()}';
+    final argb = _teamPrimaryColor.toARGB32();
+    final hexColor = '0xFF${argb.toRadixString(16).substring(2).toUpperCase()}';
 
-    // Mock roster
     final mockPlayers = [
       TournamentPlayer(id: 'p_${name}_1', name: 'Player A', jerseyNumber: 10, position: 'FWD'),
       TournamentPlayer(id: 'p_${name}_2', name: 'Player B', jerseyNumber: 8, position: 'MID'),
@@ -125,6 +141,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   }
 
   Future<void> _handlePublish() async {
+    final orderedTeams = _drawnOrder.isNotEmpty ? _drawnOrder : _teams;
     final tournament = Tournament(
       id: 'tour_${DateTime.now().millisecondsSinceEpoch}',
       name: _nameController.text.trim(),
@@ -136,8 +153,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       winPts: _winPts,
       drawPts: _drawPts,
       lossPts: _lossPts,
-      teams: _teams,
-      matches: const [], // Will be auto-generated for League format!
+      teams: orderedTeams,
+      matches: const [],
       prizes: _prizesController.text.trim(),
       creatorId: '',
     );
@@ -183,13 +200,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
           SafeArea(
             child: Column(
               children: [
-                // Header Row
                 _buildHeader(context),
-
-                // Step Progress Bar
                 _buildProgressBar(),
-
-                // Step Content
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
@@ -200,8 +212,6 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
                     ),
                   ),
                 ),
-
-                // Navigation Row at Bottom
                 _buildBottomNav(),
               ],
             ),
@@ -281,13 +291,16 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
       case 4:
         return _buildStep4Teams();
       case 5:
-        return _buildStep5Confirm();
+        return _buildStep5Draw();
+      case 6:
+        return _buildStep6Confirm();
       default:
         return Container();
     }
   }
 
-  // Step 1: Info Screen
+  // ─── Step 1: Basic Info ────────────────────────────────────────────────────
+
   Widget _buildStep1Info() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,14 +317,44 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         _buildTextField(_locController, "e.g., Sector 5 Ground, Mumbai"),
         const SizedBox(height: 16),
         _buildLabel("Sport Type"),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             _buildChoiceChip("⚽ FOOTBALL", _selectedSport == 'football', () {
               setState(() => _selectedSport = 'football');
             }),
-            const SizedBox(width: 8),
             _buildChoiceChip("🏏 CRICKET", _selectedSport == 'cricket', () {
               setState(() => _selectedSport = 'cricket');
+            }),
+            _buildChoiceChip("🏀 BASKETBALL", _selectedSport == 'basketball', () {
+              setState(() => _selectedSport = 'basketball');
+            }),
+            _buildChoiceChip("🎾 TENNIS", _selectedSport == 'tennis', () {
+              setState(() => _selectedSport = 'tennis');
+            }),
+            _buildChoiceChip("🏸 BADMINTON", _selectedSport == 'badminton', () {
+              setState(() => _selectedSport = 'badminton');
+            }),
+            _buildChoiceChip("🎯 CUSTOM", _selectedSport == 'custom', () {
+              setState(() => _selectedSport = 'custom');
+            }),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildLabel("Tournament Type"),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildChoiceChip("👥 TEAMS", _tournamentType == 'teams', () {
+              setState(() => _tournamentType = 'teams');
+            }),
+            _buildChoiceChip("👤 INDIVIDUAL", _tournamentType == 'individual', () {
+              setState(() => _tournamentType = 'individual');
+            }),
+            _buildChoiceChip("🤝 DOUBLES", _tournamentType == 'doubles', () {
+              setState(() => _tournamentType = 'doubles');
             }),
           ],
         ),
@@ -319,7 +362,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     );
   }
 
-  // Step 2: Format
+  // ─── Step 2: Format ────────────────────────────────────────────────────────
+
   Widget _buildStep2Format() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,21 +373,43 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         _buildFormatOption(
           'league',
           'Round Robin League',
-          'Everyone plays everyone. Auto-generates fixtures. Best for local seasonal clubs.',
+          'All teams play each other. Auto-generates full fixture list.',
           Icons.grid_view_outlined,
         ),
         const SizedBox(height: 6),
         _buildFormatOption(
           'knockout',
-          'Knockout / Single Elimination',
-          'Lose once and you are out. Ideal for weekend cups or esports brackets.',
+          'Knockout / Elimination',
+          'Lose once and you\'re out. Ideal for cups & esports.',
           Icons.account_tree_outlined,
+        ),
+        const SizedBox(height: 6),
+        _buildFormatOption(
+          'league_knockout',
+          'League + Knockout',
+          'Group stage league feeding into a knockout final.',
+          Icons.merge_outlined,
+        ),
+        const SizedBox(height: 6),
+        _buildFormatOption(
+          'groups_knockout',
+          'Groups + Knockout',
+          'Teams split into groups. Top teams advance to knockout.',
+          Icons.table_chart_outlined,
+        ),
+        const SizedBox(height: 6),
+        _buildFormatOption(
+          'custom',
+          'Custom Format',
+          'Define your own rules. Mix stages as needed.',
+          Icons.tune_outlined,
         ),
       ],
     );
   }
 
-  // Step 3: Scoring Rules
+  // ─── Step 3: Scoring Rules ─────────────────────────────────────────────────
+
   Widget _buildStep3Rules() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,7 +431,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     );
   }
 
-  // Step 4: Add Teams
+  // ─── Step 4: Add Teams ─────────────────────────────────────────────────────
+
   Widget _buildStep4Teams() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,8 +513,263 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     );
   }
 
-  // Step 5: Confirm Page
-  Widget _buildStep5Confirm() {
+  // ─── Step 5: Draw & Schedule ───────────────────────────────────────────────
+
+  Widget _buildStep5Draw() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader("DRAW & SCHEDULE", "Choose how match fixtures are generated."),
+        const SizedBox(height: 18),
+
+        // Draw method option cards
+        _buildDrawOption('random', '🎲', 'Random Draw', 'Teams drawn randomly into the bracket.', isRecommended: true),
+        const SizedBox(height: 6),
+        _buildDrawOption('seeded', '🏆', 'By Seeding', 'Higher ranked teams get favorable bracket positions.'),
+        const SizedBox(height: 6),
+        _buildDrawOption('random_seeded', '🔀', 'Random + Seeded', 'Random draw but top seeds are protected.'),
+        const SizedBox(height: 6),
+        _buildDrawOption('manual', '✏️', 'Manual Assignment', 'You decide who plays who.'),
+
+        const SizedBox(height: 20),
+
+        // START DRAW button
+        if (!_drawCompleted)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isDrawing
+                  ? null
+                  : () {
+                      setState(() {
+                        _isDrawing = true;
+                        _drawnOrder = [];
+                      });
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SkorioColors.secondary,
+                disabledBackgroundColor: SkorioColors.secondary.withValues(alpha: 0.4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              child: Text(
+                _isDrawing ? "DRAWING..." : "START DRAW",
+                style: SkorioTextStyles.labelSm.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+          ),
+
+        // Draw animation or completed result
+        if (_isDrawing || _drawCompleted) ...[
+          const SizedBox(height: 16),
+          _buildDrawAnimation(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDrawOption(String value, String emoji, String title, String desc, {bool isRecommended = false}) {
+    final isSelected = _drawMethod == value;
+    return GestureDetector(
+      onTap: () {
+        if (!_isDrawing) {
+          setState(() {
+            _drawMethod = value;
+            _drawCompleted = false;
+            _drawnOrder = [];
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? SkorioColors.secondary.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.02),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? SkorioColors.secondary.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.06),
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: SkorioTextStyles.labelSm.copyWith(
+                          color: isSelected ? Colors.white : Colors.white70,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
+                      ),
+                      if (isRecommended) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: SkorioColors.secondary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'RECOMMENDED',
+                            style: SkorioTextStyles.labelSm.copyWith(
+                              color: SkorioColors.secondary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    desc,
+                    style: SkorioTextStyles.labelSm.copyWith(
+                      color: Colors.white30,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: SkorioColors.secondary, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawAnimation() {
+    if (_drawCompleted && _drawnOrder.isNotEmpty) {
+      // Show final drawn order list
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: SkorioColors.secondary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: SkorioColors.secondary.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: SkorioColors.secondary, size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                      "DRAW COMPLETED",
+                      style: SkorioTextStyles.labelSm.copyWith(
+                        color: SkorioColors.secondary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ..._drawnOrder.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final team = entry.value;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.03),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: SkorioColors.secondary.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${idx + 1}',
+                            style: SkorioTextStyles.labelSm.copyWith(
+                              color: SkorioColors.secondary,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(team.logoUrl, style: const TextStyle(fontSize: 16)),
+                        const SizedBox(width: 8),
+                        Text(
+                          team.name,
+                          style: SkorioTextStyles.labelSm.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Show animation widget
+    return _DrawAnimationWidget(
+      teams: List<TournamentTeam>.from(_teams),
+      onComplete: (drawn) {
+        setState(() {
+          _drawnOrder = drawn;
+          _isDrawing = false;
+          _drawCompleted = true;
+        });
+      },
+    );
+  }
+
+  // ─── Step 6: Confirm ───────────────────────────────────────────────────────
+
+  Widget _buildStep6Confirm() {
+    final formatNames = {
+      'league': 'Round Robin League',
+      'knockout': 'Knockout / Elimination',
+      'league_knockout': 'League + Knockout',
+      'groups_knockout': 'Groups + Knockout',
+      'custom': 'Custom Format',
+    };
+    final typeNames = {
+      'teams': 'Teams',
+      'individual': 'Individual',
+      'doubles': 'Doubles',
+    };
+    final drawNames = {
+      'random': 'Random Draw',
+      'seeded': 'By Seeding',
+      'random_seeded': 'Random + Seeded',
+      'manual': 'Manual Assignment',
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -455,7 +777,9 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
         const SizedBox(height: 18),
         _buildSummaryRow("Name", _nameController.text),
         _buildSummaryRow("Sport", _selectedSport.toUpperCase()),
-        _buildSummaryRow("Format", _selectedFormat == 'league' ? 'Round Robin League' : 'Single Elimination Cup'),
+        _buildSummaryRow("Format", formatNames[_selectedFormat] ?? _selectedFormat),
+        _buildSummaryRow("Type", typeNames[_tournamentType] ?? _tournamentType),
+        _buildSummaryRow("Draw Method", drawNames[_drawMethod] ?? _drawMethod),
         _buildSummaryRow("Rules", "Win: $_winPts PTS · Draw: $_drawPts PTS · Loss: $_lossPts PTS"),
         _buildSummaryRow("Total Teams", "${_teams.length} Teams"),
         if (_locController.text.isNotEmpty) _buildSummaryRow("Venue", _locController.text),
@@ -464,7 +788,8 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
     );
   }
 
-  // Helpers
+  // ─── Helpers ───────────────────────────────────────────────────────────────
+
   Widget _buildSectionHeader(String title, String subtitle) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -641,6 +966,7 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
   }
 
   Widget _buildBottomNav() {
+    final bool continueEnabled = _currentStep != 5 || _drawCompleted || _drawMethod == 'manual';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
@@ -661,9 +987,10 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
           else
             const SizedBox(),
           ElevatedButton(
-            onPressed: _currentStep == _totalSteps ? _handlePublish : _nextStep,
+            onPressed: continueEnabled ? (_currentStep == _totalSteps ? _handlePublish : _nextStep) : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: SkorioColors.secondary,
+              disabledBackgroundColor: SkorioColors.secondary.withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -671,6 +998,222 @@ class _CreateTournamentScreenState extends ConsumerState<CreateTournamentScreen>
               _currentStep == _totalSteps ? "PUBLISH" : "CONTINUE",
               style: SkorioTextStyles.labelSm.copyWith(color: Colors.black, fontWeight: FontWeight.w900),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Draw Animation Widget ─────────────────────────────────────────────────────
+
+class _DrawAnimationWidget extends StatefulWidget {
+  final List<TournamentTeam> teams;
+  final void Function(List<TournamentTeam> drawn) onComplete;
+
+  const _DrawAnimationWidget({
+    required this.teams,
+    required this.onComplete,
+  });
+
+  @override
+  State<_DrawAnimationWidget> createState() => _DrawAnimationWidgetState();
+}
+
+class _DrawAnimationWidgetState extends State<_DrawAnimationWidget> with TickerProviderStateMixin {
+  late List<TournamentTeam> _pool;
+  final List<TournamentTeam?> _slots = [];
+  Timer? _timer;
+  int _nextSlot = 0;
+
+  // Per-slot animation controllers
+  final List<AnimationController> _controllers = [];
+  final List<Animation<double>> _scaleAnims = [];
+  final List<Animation<double>> _fadeAnims = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _pool = List<TournamentTeam>.from(widget.teams)..shuffle();
+    for (int i = 0; i < widget.teams.length; i++) {
+      _slots.add(null);
+      final ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
+      _controllers.add(ctrl);
+      _scaleAnims.add(Tween<double>(begin: 0.4, end: 1.0).animate(CurvedAnimation(parent: ctrl, curve: Curves.elasticOut)));
+      _fadeAnims.add(Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: ctrl, curve: Curves.easeIn)));
+    }
+
+    _timer = Timer.periodic(const Duration(milliseconds: 400), _onTick);
+  }
+
+  void _onTick(Timer timer) {
+    if (_nextSlot >= widget.teams.length) {
+      timer.cancel();
+      final drawn = _slots.whereType<TournamentTeam>().toList();
+      widget.onComplete(drawn);
+      return;
+    }
+
+    // Pick a random team from the remaining pool
+    final idx = (_pool.length * (DateTime.now().microsecondsSinceEpoch % 1000) / 1000).floor().clamp(0, _pool.length - 1);
+    final picked = _pool.removeAt(idx);
+
+    setState(() {
+      _slots[_nextSlot] = picked;
+    });
+    _controllers[_nextSlot].forward(from: 0);
+    _nextSlot++;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // DRAW POOL
+        Text(
+          "DRAW POOL",
+          style: SkorioTextStyles.labelSm.copyWith(
+            color: Colors.white30,
+            fontSize: 9,
+            letterSpacing: 0.8,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 64,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: widget.teams.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 6),
+            itemBuilder: (context, i) {
+              final team = widget.teams[i];
+              final isPlaced = _slots.contains(team);
+              return _buildTeamCard(team, isPlaced: isPlaced);
+            },
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // DRAW ORDER
+        Text(
+          "DRAW ORDER",
+          style: SkorioTextStyles.labelSm.copyWith(
+            color: Colors.white30,
+            fontSize: 9,
+            letterSpacing: 0.8,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 80,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: _slots.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 6),
+            itemBuilder: (context, i) {
+              final team = _slots[i];
+              if (team == null) {
+                // Empty slot
+                return Container(
+                  width: 56,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.02),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.08), style: BorderStyle.solid),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${i + 1}',
+                        style: SkorioTextStyles.labelSm.copyWith(
+                          color: Colors.white12,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return FadeTransition(
+                opacity: _fadeAnims[i],
+                child: ScaleTransition(
+                  scale: _scaleAnims[i],
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      _buildTeamCard(team, isPlaced: false, showSlotNum: i + 1),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTeamCard(TournamentTeam team, {required bool isPlaced, int? showSlotNum}) {
+    return Container(
+      width: 56,
+      height: showSlotNum != null ? 72 : 60,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      decoration: BoxDecoration(
+        color: isPlaced
+            ? Colors.white.withValues(alpha: 0.03)
+            : SkorioColors.secondary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isPlaced
+              ? Colors.white.withValues(alpha: 0.08)
+              : SkorioColors.secondary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (showSlotNum != null)
+            Text(
+              '$showSlotNum',
+              style: SkorioTextStyles.labelSm.copyWith(
+                color: SkorioColors.secondary,
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          Text(
+            team.logoUrl,
+            style: TextStyle(
+              fontSize: 16,
+              color: isPlaced ? Colors.white.withValues(alpha: 0.3) : null,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            team.name,
+            style: SkorioTextStyles.labelSm.copyWith(
+              color: isPlaced ? Colors.white24 : Colors.white70,
+              fontSize: 9,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
