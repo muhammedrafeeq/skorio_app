@@ -162,6 +162,193 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
     );
   }
 
+  void _showAddFixtureDialog(BuildContext context, Tournament tournament) {
+    String? homeTeamId;
+    String? awayTeamId;
+    DateTime scheduledDate = DateTime.now().add(const Duration(days: 1));
+    String phase = '';
+    final venueCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.85),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF131318),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Colors.white12),
+              ),
+              title: Text(
+                "Add Fixture",
+                style: SkorioTextStyles.labelMd.copyWith(color: Colors.white, fontSize: 16),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabel("Home Team"),
+                    SizedBox(
+                      width: double.infinity,
+                      child: DropdownButton<String?>(
+                        value: homeTeamId,
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF131318),
+                        hint: const Text("Select home team", style: TextStyle(color: Colors.white38, fontSize: 13)),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        underline: Container(height: 1, color: Colors.white12),
+                        onChanged: (v) => setDialogState(() => homeTeamId = v),
+                        items: tournament.teams.map((team) => DropdownMenuItem<String?>(
+                          value: team.id,
+                          child: Text('${team.logoUrl} ${team.name}'),
+                        )).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLabel("Away Team"),
+                    SizedBox(
+                      width: double.infinity,
+                      child: DropdownButton<String?>(
+                        value: awayTeamId,
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF131318),
+                        hint: const Text("Select away team", style: TextStyle(color: Colors.white38, fontSize: 13)),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        underline: Container(height: 1, color: Colors.white12),
+                        onChanged: (v) => setDialogState(() => awayTeamId = v),
+                        items: tournament.teams.map((team) => DropdownMenuItem<String?>(
+                          value: team.id,
+                          child: Text('${team.logoUrl} ${team.name}'),
+                        )).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLabel("Venue"),
+                    TextField(
+                      controller: venueCtrl,
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: "e.g. Main Ground - Pitch A",
+                        hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLabel("Match Date"),
+                    GestureDetector(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: scheduledDate,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (date == null) return;
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(scheduledDate),
+                        );
+                        setDialogState(() {
+                          scheduledDate = DateTime(
+                            date.year, date.month, date.day,
+                            time?.hour ?? scheduledDate.hour,
+                            time?.minute ?? scheduledDate.minute,
+                          );
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.02),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.event, color: Colors.white54, size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              "${scheduledDate.day}/${scheduledDate.month}/${scheduledDate.year}  ${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}",
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLabel("Phase"),
+                    SizedBox(
+                      width: double.infinity,
+                      child: DropdownButton<String>(
+                        value: phase,
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF131318),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
+                        underline: Container(height: 1, color: Colors.white12),
+                        onChanged: (v) => setDialogState(() => phase = v ?? ''),
+                        items: const [
+                          DropdownMenuItem(value: '', child: Text('League')),
+                          DropdownMenuItem(value: 'r16', child: Text('Round of 16')),
+                          DropdownMenuItem(value: 'qf', child: Text('Quarter Final')),
+                          DropdownMenuItem(value: 'sf', child: Text('Semifinal')),
+                          DropdownMenuItem(value: 'final', child: Text('Final')),
+                          DropdownMenuItem(value: 'third', child: Text('3rd Place')),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("CANCEL", style: TextStyle(color: Colors.white38, fontWeight: FontWeight.bold)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (homeTeamId == null || awayTeamId == null || homeTeamId == awayTeamId) return;
+                    final newMatch = TournamentMatch(
+                      id: 'match_${DateTime.now().millisecondsSinceEpoch}',
+                      homeTeamId: homeTeamId!,
+                      awayTeamId: awayTeamId!,
+                      date: scheduledDate,
+                      status: 'scheduled',
+                      venue: venueCtrl.text.trim().isEmpty ? 'TBD' : venueCtrl.text.trim(),
+                      phase: phase,
+                      groupId: '',
+                    );
+                    ref.read(tournamentsProvider.notifier).addMatchToTournament(tournament.id, newMatch);
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SkorioColors.secondary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text("ADD FIXTURE", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildNumberField(TextEditingController controller) {
     return Container(
       width: 60,
@@ -525,16 +712,17 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
   // ─── 2. Fixtures Tab ────────────────────────────────────────────────────────
 
   Widget _buildFixturesTab(Tournament tournament, {required bool isCreator}) {
-    if (tournament.matches.isEmpty) {
-      return Center(
-        child: Text("No fixtures generated yet", style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24)),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: tournament.matches.length,
-      itemBuilder: (context, idx) {
+    return Stack(
+      children: [
+        if (tournament.matches.isEmpty)
+          Center(
+            child: Text("No fixtures yet. Tap + to add.", style: SkorioTextStyles.labelSm.copyWith(color: Colors.white24)),
+          )
+        else
+          ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: tournament.matches.length,
+            itemBuilder: (context, idx) {
         final match = tournament.matches[idx];
         final homeTeam = tournament.teams.firstWhere((t) => t.id == match.homeTeamId);
         final awayTeam = tournament.teams.firstWhere((t) => t.id == match.awayTeamId);
@@ -661,7 +849,20 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
             ),
           ),
         );
-      },
+            },
+          ),
+        if (isCreator)
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton.small(
+              heroTag: 'add_fixture',
+              backgroundColor: SkorioColors.secondary,
+              onPressed: () => _showAddFixtureDialog(context, tournament),
+              child: const Icon(Icons.add, color: Colors.black),
+            ),
+          ),
+      ],
     );
   }
 

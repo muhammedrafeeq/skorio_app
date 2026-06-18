@@ -665,6 +665,14 @@ class TournamentsNotifier extends Notifier<TournamentsState> {
     return result;
   }
 
+  void addMatchToTournament(String tournamentId, TournamentMatch match) {
+    final current = state.tournaments.firstWhere((t) => t.id == tournamentId);
+    final updated = current.copyWith(matches: [...current.matches, match]);
+    state = state.copyWith(
+      tournaments: [for (final t in state.tournaments) if (t.id == tournamentId) updated else t],
+    );
+  }
+
   /// Returns knockout matches grouped by phase for bracket display
   Map<String, List<TournamentMatch>> getKnockoutRounds(String tournamentId) {
     final tIdx = state.tournaments.indexWhere((t) => t.id == tournamentId);
