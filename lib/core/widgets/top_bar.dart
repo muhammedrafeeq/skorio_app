@@ -31,70 +31,69 @@ class TopBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget _buildModeToggle(BuildContext context, WidgetRef ref) {
     final modeState = ref.watch(appModeProvider);
     final isFan = modeState.mode == AppMode.fan;
-
-    return GestureDetector(
-      onTap: () {
-        if (isFan) {
-          ref.read(appModeProvider.notifier).setMode(AppMode.tournament);
-          context.go('/tournaments/dashboard');
-        } else {
-          ref.read(appModeProvider.notifier).setMode(AppMode.fan);
-          context.go('/');
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        height: 34,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        decoration: BoxDecoration(
-          color: const Color(0xFF16161C),
-          borderRadius: BorderRadius.circular(100),
-          border: Border.all(
-            color: isFan
-                ? SkorioColors.primary.withValues(alpha: 0.25)
-                : SkorioColors.secondary.withValues(alpha: 0.25),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isFan
-                  ? SkorioColors.primary.withValues(alpha: 0.08)
-                  : SkorioColors.secondary.withValues(alpha: 0.08),
-              blurRadius: 8,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildTogglePill('Fan', isFan, SkorioColors.primary),
-            const SizedBox(width: 2),
-            _buildTogglePill('Tournament', !isFan, SkorioColors.secondary),
-          ],
-        ),
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: const Color(0xFF111116),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildToggleTab('Fan', isFan, SkorioColors.primary, () {
+            ref.read(appModeProvider.notifier).setMode(AppMode.fan);
+            context.go('/');
+          }),
+          Container(width: 1, height: 18, color: Colors.white.withValues(alpha: 0.06)),
+          _buildToggleTab('Tournament', !isFan, SkorioColors.secondary, () {
+            ref.read(appModeProvider.notifier).setMode(AppMode.tournament);
+            context.go('/tournaments/dashboard');
+          }),
+        ],
       ),
     );
   }
 
-  Widget _buildTogglePill(String label, bool isActive, Color activeColor) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isActive ? activeColor : Colors.transparent,
-        borderRadius: BorderRadius.circular(100),
-        boxShadow: isActive
-            ? [BoxShadow(color: activeColor.withValues(alpha: 0.3), blurRadius: 6, spreadRadius: 0)]
-            : [],
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isActive ? Colors.black : Colors.white30,
-          fontSize: 9.5,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.3,
+  Widget _buildToggleTab(String label, bool isActive, Color activeColor, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+        height: 32,
+        decoration: BoxDecoration(
+          color: isActive ? activeColor.withValues(alpha: 0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(7),
+          border: isActive
+              ? Border.all(color: activeColor.withValues(alpha: 0.4), width: 0.5)
+              : null,
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 5, height: 5,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isActive ? activeColor : Colors.white.withValues(alpha: 0.15),
+                boxShadow: isActive
+                    ? [BoxShadow(color: activeColor.withValues(alpha: 0.6), blurRadius: 4)]
+                    : [],
+              ),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? activeColor : Colors.white30,
+                fontSize: 10,
+                fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
         ),
       ),
     );

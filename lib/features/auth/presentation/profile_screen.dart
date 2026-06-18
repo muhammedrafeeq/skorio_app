@@ -788,7 +788,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    user.email ?? 'Tournament Organizer',
+                    (user.phone as String).isNotEmpty ? user.phone : 'Tournament Organizer',
                     style: SkorioTextStyles.labelSm.copyWith(color: Colors.white38, fontSize: 12),
                   ),
                   const SizedBox(height: 6),
